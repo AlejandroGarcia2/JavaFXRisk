@@ -1,4 +1,1 @@
-# hello-world
-Just another repository
-
-This is the updated file!
+Repository for a game of Risk made using JavaFX
