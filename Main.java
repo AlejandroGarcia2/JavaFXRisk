@@ -1,3 +1,4 @@
+import java.util.*;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
@@ -11,7 +12,9 @@ import javafx.scene.image.Image;
 import javafx.animation.AnimationTimer;
 import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
-import java.util.ArrayList;
+import java.nio.file.*;
+import java.nio.charset.Charset;
+
 
 // Keyboard events
 public class Main extends Application 
@@ -24,7 +27,7 @@ public class Main extends Application
     @Override
     public void start(Stage theStage) 
     {
-        theStage.setTitle( "Click the Target!" );
+        theStage.setTitle( "Risk!" );
 
         Group root = new Group();
         Scene theScene = new Scene( root );
@@ -38,17 +41,27 @@ public class Main extends Application
         Circle targetData = new Circle(100,100,32);
         IntValue points = new IntValue(0);
 
+
+        List<String> lines = new ArrayList<String>();
+        List<Double> xs = new ArrayList<Double>();
+        List<Double> ys = new ArrayList<Double>();
+
+
         theScene.setOnMouseClicked(
             new EventHandler<MouseEvent>()
             {
                 public void handle(MouseEvent e)
                 {
+                    lines.add(e.getX() + "," + e.getY());
+                    xs.add(e.getX());
+                    ys.add(e.getY());
                     if ( targetData.containsPoint( e.getX(), e.getY() ) )
                     {
                         double x = 50 + 400 * Math.random(); 
                         double y = 50 + 400 * Math.random();
                         targetData.setCenter(x,y);
                         points.value++;
+                        writeLocs(lines);
                     }
                     else
                         points.value = 0;
@@ -65,6 +78,9 @@ public class Main extends Application
         Image bullseye = new Image( "images/bullseye.png" );
         Image board = new Image( "images/RiskBoard.jpg" );
 
+      
+       
+
         new AnimationTimer()
         {
             public void handle(long currentNanoTime)
@@ -79,6 +95,11 @@ public class Main extends Application
                     targetData.getX() - targetData.getRadius(),
                     targetData.getY() - targetData.getRadius() );
 
+                for (int i = 0; i < xs.size(); i++)
+                {
+                    gc.drawImage( bullseye, xs.get(i), ys.get(i), 10, 10);
+                }
+
                 gc.setFill( Color.BLUE );
 
                 String pointsText = "Points: " + points.value;
@@ -89,5 +110,15 @@ public class Main extends Application
 
 
         theStage.show();
+    }
+
+    public void writeLocs(List<String> lines)
+    {
+        try{
+       
+        Path file = Paths.get("locs.txt");
+        Files.write(file, lines, Charset.forName("UTF-8"));
+        }
+        catch(Exception e){}
     }
 }
